@@ -129,3 +129,26 @@ test('列表 JSON 不带全文，详情 JSON 带 prev/next 且不带 generated_a
   assert.equal(details[2].next, null);
   assert.ok(!Object.hasOwn(details[0], 'generated_at'), '详情 JSON 不能带 generated_at，否则每次构建全是假 diff');
 });
+
+// ---------------------------------------------------------------- 作者展示覆盖
+
+test('authors 覆盖昵称和头像：大小写不敏感，login 保留原值，未配置的回退 GitHub 原值', () => {
+  const cfgAuthors = {
+    ...cfg,
+    authors: { QiYao: { name: '绮曜', avatar: 'https://example.com/me.png' } },
+  };
+  const list = buildList(
+    [
+      issue(1, { user: { login: 'qiyao', avatar_url: 'https://avatars.githubusercontent.com/u/1', html_url: 'https://github.com/qiyao' } }),
+      issue(2, { user: { login: 'someone', avatar_url: 'https://avatars.githubusercontent.com/u/2', html_url: 'https://github.com/someone' } }),
+    ],
+    cfgAuthors
+  );
+
+  assert.equal(list.memos[0].author.name, '绮曜', '配置的昵称生效');
+  assert.equal(list.memos[0].author.avatar_url, 'https://example.com/me.png', '配置的头像生效');
+  assert.equal(list.memos[0].author.login, 'qiyao', 'login 保留原值，不参与展示');
+
+  assert.equal(list.memos[1].author.name, 'someone', '未配置的作者回退到 login');
+  assert.equal(list.memos[1].author.avatar_url, 'https://avatars.githubusercontent.com/u/2', '未配置的作者回退到 GitHub 头像');
+});

@@ -94,12 +94,46 @@ export function isPinned(issue, cfg) {
   return (issue.labels ?? []).some((l) => pinned.has(labelName(l)));
 }
 
-function pickAuthor(user) {
-  if (!user) return { login: 'ghost', avatar_url: '', url: '' };
+/** 在 cfg.authors 里找 login 对应的覆盖项（GitHub login 大小写不敏感） */
+function findAuthorOverride(login, cfg) {
+  const authors = cfg?.authors;
+  if (!authors || typeof authors !== 'object') return null;
+  const target = String(login ?? '').toLowerCase();
+  const key = Object.keys(authors).find((k) => k.toLowerCase() === target);
+  return key ? authors[key] : null;
+}
+
+/**
+ * 解析头像：完整 URL 原样返回；本地路径登记到 assets 待复制，返回产物内的相对路径。
+ * 文件不存在时告警并回退到 GitHub 头像。
+ */
+function resolveAvatar(login, value, assets) {
+  const raw = String(value ?? '').trim();
+  if (!raw) return '';
+  if (/^(https?:|data:)/i.test(raw)) return raw;
+  const src = path.resolve(ROOT, raw);
+  if (!fs.existsSync(src)) {
+    warn(`头像文件不存在：${raw}（author ${login}），回退到 GitHub 头像`);
+    return '';
+  }
+  const ext = path.extname(src).toLowerCase() || '.png';
+  const filename = `${String(login ?? 'ghost').replace(/[^a-zA-Z0-9_-]/g, '_')}${ext}`;
+  const to = `avatars/${filename}`;
+  if (assets) assets.set(src, to);
+  return to;
+}
+
+function pickAuthor(user, cfg, assets) {
+  const login = user?.login ?? 'ghost';
+  const override = findAuthorOverride(login, cfg);
+  const overrideName = String(override?.name ?? '').trim();
+  const overrideAvatar = String(override?.avatar ?? '').trim();
+  const avatarUrl = overrideAvatar ? resolveAvatar(login, overrideAvatar, assets) : (user?.avatar_url ?? '');
   return {
-    login: user.login ?? 'ghost',
-    avatar_url: user.avatar_url ?? '',
-    url: user.html_url ?? '',
+    login,
+    name: overrideName || login, // 前端优先显示 name，没配就是 login
+    avatar_url: avatarUrl,
+    url: user?.html_url ?? '',
   };
 }
 
@@ -181,13 +215,13 @@ export function applyMaxCount(issues, maxCount) {
 
 // ---------------------------------------------------------------- 产物构造（纯函数）
 
-export function buildList(issues, cfg) {
+export function buildList(issues, cfg, assets) {
   const render = cfg?.memos?.render ?? { gfm: true, breaks: true };
   const memos = (issues ?? []).map((issue) => ({
     number: issue.number,
     title: resolveTitle(issue, cfg),
     excerpt: makeExcerpt(issue.body),
-    author: pickAuthor(issue.user),
+    author: pickAuthor(issue.user, cfg, assets),
     created_at: issue.created_at,
     updated_at: issue.updated_at,
     labels: pickLabels(issue.labels, cfg),
@@ -223,7 +257,7 @@ export function buildList(issues, cfg) {
 /**
  * 详情 JSON 刻意不放 generated_at —— 内容未变时字节一致，不进 git diff。
  */
-export function buildDetails(issues, cfg) {
+export function buildDetails(issues, cfg, assets) {
   const render = cfg?.memos?.render ?? { gfm: true, breaks: true };
   const list = issues ?? [];
   return list.map((issue, i) => {
@@ -233,7 +267,7 @@ export function buildDetails(issues, cfg) {
       number: issue.number,
       title: resolveTitle(issue, cfg),
       content: issue.body ?? '',
-      author: pickAuthor(issue.user),
+      author: pickAuthor(issue.user, cfg, assets),
       created_at: issue.created_at,
       updated_at: issue.updated_at,
       labels: pickLabels(issue.labels, cfg),
@@ -426,13 +460,14 @@ async function copyVendor(outDir) {
 async function emit({ issues, cfg, outDir }) {
   const jsonPath = cfg?.build?.json_path ?? 'memos.json';
   const detailDir = cfg?.build?.detail_dir ?? 'memo';
+  const assets = new Map(); // 本地资源：绝对源路径 -> 产物内相对路径（如 avatars/qiyao.png）
 
   // 列表
-  const list = buildList(issues, cfg);
+  const list = buildList(issues, cfg, assets);
   await writeFileSafe(path.join(outDir, jsonPath), JSON.stringify(list, null, 2));
 
   // 详情（每次全量重建，目录天然是干净的）
-  const details = buildDetails(issues, cfg);
+  const details = buildDetails(issues, cfg, assets);
   const detailRoot = path.join(outDir, detailDir);
   await fsp.mkdir(detailRoot, { recursive: true });
   for (const detail of details) {
@@ -466,6 +501,11 @@ async function emit({ issues, cfg, outDir }) {
 
   // 关掉 Jekyll，避免 Pages 处理耗时和 `_` 前缀文件被忽略
   await writeFileSafe(path.join(outDir, '.nojekyll'), '');
+
+  // 作者自定义头像等本地资源
+  for (const [from, to] of assets) {
+    await copyIfExists(from, path.join(outDir, to));
+  }
 
   await copyVendor(outDir);
 }

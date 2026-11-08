@@ -17,6 +17,7 @@
 2. 等一两分钟，workflow 跑完，Pages 自动更新
 3. 想置顶？给它打 `置顶` label
 4. 想隐藏？关闭 issue（`include_closed: false` 时关闭即消失）
+5. 想改显示昵称和头像？改 `config.yaml` 的 `authors` 段（见下）
 
 ## 目录结构
 
@@ -30,6 +31,7 @@ src/                          # 前端源码
 ├── index.html
 ├── style.css
 └── app.js
+assets/avatars/               # 自定义头像（可选，构建时复制进产物）
 test/                         # 纯函数单测 + 本地 fixture
 dist/                         # 构建产物（gitignore，只存在于 pages 分支）
 ```
@@ -74,6 +76,17 @@ GITHUB_TOKEN=xxx GITHUB_REPOSITORY=owner/repo npm run build
 | `build.group_by_date` | 是否产出 `index_by_date` 月份索引（当前前端未用，月份从 `memos[]` 现推） |
 | `feed.full_content` | true = 全文 HTML，false = 摘要 + 链接 |
 | `lightbox.enabled` | 图片放大开关 |
+| `authors.<login>.name` | 显示昵称，覆盖 GitHub login（key 大小写不敏感） |
+| `authors.<login>.avatar` | 自定义头像：完整 URL，或仓库内路径如 `assets/avatars/qiyao.svg`（构建时复制到 `dist/avatars/`） |
+
+`authors` 只影响展示，不影响 `login` 字段本身——`login` 保留原值，方便以后做逻辑判断。没配置的作者完全回退到 GitHub 原值。
+
+```yaml
+authors:
+  qiyao:
+    name: "绮曜"
+    avatar: "assets/avatars/qiyao.svg"
+```
 
 ## 设计上的几个决定
 

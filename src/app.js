@@ -212,8 +212,11 @@ function avatarImg(author, className) {
 }
 
 function authorLink(author, avatarClass) {
-  const login = String((author && author.login) || '');
-  const inner = [avatarImg(author, avatarClass), h('span', { class: 'author-login', text: login })];
+  // 显示名优先用构建侧下发的 name（config.yaml 的 authors 覆盖），没配就是 GitHub login
+  const display = String((author && (author.name || author.login)) || '');
+  const avatar = avatarImg(author, avatarClass);
+  if (display) avatar.alt = display;
+  const inner = [avatar, h('span', { class: 'author-login', text: display })];
   const url = String((author && author.url) || '');
   if (!url) return h('span', { class: 'author' }, ...inner);
   return h('a', { class: 'author', href: url, target: '_blank', rel: 'noopener noreferrer' }, ...inner);
