@@ -78,7 +78,7 @@ GITHUB_TOKEN=xxx GITHUB_REPOSITORY=owner/repo npm run build
 | `feed.full_content` | true = 全文 HTML，false = 摘要 + 链接 |
 | `lightbox.enabled` | 图片放大开关 |
 | `authors.<login>.name` | 显示昵称，覆盖 GitHub login（key 大小写不敏感） |
-| `authors.<login>.avatar` | 自定义头像：完整 URL，或仓库内路径如 `assets/avatars/qiyao.svg`（构建时复制到 `dist/avatars/`） |
+| `authors.<login>.avatar` | 自定义头像：完整 URL，或仓库内路径如 `assets/avatars/catwb.svg`（构建时复制到 `dist/avatars/`） |
 | `custom.remote_css` | 远程样式表 URL，直接 `<link>` 引入（中文网字计划 / Google Fonts 这类 unicode-range 分片方案） |
 | `custom.css` | 本地 CSS 文件，复制进产物 `custom/`，排在 `style.css` 之后 |
 | `custom.fonts` | 本地字体文件，复制进产物 `fonts/`，自动生成 `@font-face` |
@@ -88,9 +88,9 @@ GITHUB_TOKEN=xxx GITHUB_REPOSITORY=owner/repo npm run build
 
 ```yaml
 authors:
-  qiyao:
+  catwb:
     name: "绮曜"
-    avatar: "assets/avatars/qiyao.svg"
+    avatar: "assets/avatars/catwb.svg"
 ```
 
 ## 自定义样式与字体

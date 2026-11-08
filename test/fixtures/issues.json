@@ -12,11 +12,11 @@
       { "name": "说明", "color": "74c0fc" }
     ],
     "user": {
-      "login": "qiyao",
+      "login": "Catwb",
       "avatar_url": "https://avatars.githubusercontent.com/u/1?v=4",
-      "html_url": "https://github.com/qiyao"
+      "html_url": "https://github.com/Catwb"
     },
-    "html_url": "https://github.com/qiyao/github-memos/issues/6"
+    "html_url": "https://github.com/Catwb/github-memos/issues/6"
   },
   {
     "number": 5,
@@ -28,11 +28,11 @@
     "updated_at": "2026-11-07T12:30:00Z",
     "labels": [{ "name": "生活", "color": "ff6b6b" }],
     "user": {
-      "login": "qiyao",
+      "login": "Catwb",
       "avatar_url": "https://avatars.githubusercontent.com/u/1?v=4",
-      "html_url": "https://github.com/qiyao"
+      "html_url": "https://github.com/Catwb"
     },
-    "html_url": "https://github.com/qiyao/github-memos/issues/5"
+    "html_url": "https://github.com/Catwb/github-memos/issues/5"
   },
   {
     "number": 4,
@@ -44,11 +44,11 @@
     "updated_at": "2026-11-06T09:00:00Z",
     "labels": [{ "name": "测试", "color": "9775fa" }],
     "user": {
-      "login": "qiyao",
+      "login": "Catwb",
       "avatar_url": "https://avatars.githubusercontent.com/u/1?v=4",
-      "html_url": "https://github.com/qiyao"
+      "html_url": "https://github.com/Catwb"
     },
-    "html_url": "https://github.com/qiyao/github-memos/issues/4"
+    "html_url": "https://github.com/Catwb/github-memos/issues/4"
   },
   {
     "number": 3,
@@ -61,11 +61,11 @@
     "labels": [{ "name": "生活", "color": "ff6b6b" }],
     "pull_request": { "url": "https://api.github.com/repos/qiyao/github-memos/pulls/3" },
     "user": {
-      "login": "qiyao",
+      "login": "Catwb",
       "avatar_url": "https://avatars.githubusercontent.com/u/1?v=4",
-      "html_url": "https://github.com/qiyao"
+      "html_url": "https://github.com/Catwb"
     },
-    "html_url": "https://github.com/qiyao/github-memos/pull/3"
+    "html_url": "https://github.com/Catwb/github-memos/pull/3"
   },
   {
     "number": 2,
@@ -81,7 +81,7 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/2?v=4",
       "html_url": "https://github.com/stranger"
     },
-    "html_url": "https://github.com/qiyao/github-memos/issues/2"
+    "html_url": "https://github.com/Catwb/github-memos/issues/2"
   },
   {
     "number": 1,
@@ -93,10 +93,10 @@
     "updated_at": "2026-11-03T09:00:00Z",
     "labels": [{ "name": "生活", "color": "ff6b6b" }],
     "user": {
-      "login": "qiyao",
+      "login": "Catwb",
       "avatar_url": "https://avatars.githubusercontent.com/u/1?v=4",
-      "html_url": "https://github.com/qiyao"
+      "html_url": "https://github.com/Catwb"
     },
-    "html_url": "https://github.com/qiyao/github-memos/issues/1"
+    "html_url": "https://github.com/Catwb/github-memos/issues/1"
   }
 ]

@@ -52,13 +52,13 @@ lightbox:
 #
 # avatar 支持两种写法：
 #   1. 完整 URL：https://example.com/me.png
-#   2. 仓库内本地文件：assets/avatars/qiyao.png
+#   2. 仓库内本地文件：assets/avatars/catwb.png
 #      构建时会复制到产物 dist/avatars/ 下，站点自包含、不依赖图床
 # ============================================================
 authors:
-  qiyao:
+  catwb:
     name: "绮曜"
-    avatar: "assets/avatars/qiyao.svg"
+    avatar: "assets/avatars/catwb.svg"
   # 想加更多作者，照这个格式往下写：
   # someone:
   #   name: "某人"
