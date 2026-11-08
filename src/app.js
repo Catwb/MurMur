@@ -302,8 +302,11 @@ function buildCard(memo) {
   const card = h('article', { class: `card${memo.pinned ? ' is-pinned' : ''}`, dataset: { number: String(number) } });
   const head = h('div', { class: 'card-head' },
     h('a', { class: 'card-title', href: memoHash(number, {}), text: String(memo.title || '').trim() || EMPTY_TITLE }));
-  if (memo.pinned) head.append(h('span', { class: 'pin-badge', title: '置顶', 'aria-label': '置顶' }, icon('pin')));
   card.append(head);
+  // 置顶角标固定在卡片右上角，比标题旁的小图标更显眼
+  if (memo.pinned) {
+    card.append(h('span', { class: 'pin-flag', title: '置顶' }, icon('pin'), h('span', { text: '置顶' })));
+  }
   const meta = h('div', { class: 'card-meta' },
     h('time', { datetime: memo.created_at || '', text: isoDate(memo.created_at) }));
   if (memo.author && memo.author.login) {

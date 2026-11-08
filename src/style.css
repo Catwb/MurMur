@@ -499,9 +499,29 @@ a.chip-label::after {
 
 .pin-badge .icon { width: 13px; height: 13px; }
 
-/* 列表页：.card-head 是 flex-start，图标要下移半个行高差才和标题文字视觉居中
-   （标题 18px × 1.45 ≈ 26px 行高，文字中心在 13px，图标 13px 需下移 6px） */
-.card-head .pin-badge { margin-top: 6px; }
+/* 列表页置顶角标：固定在卡片右上角，比标题旁的小图标更显眼 */
+.pin-flag {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--pin) 14%, transparent);
+  color: var(--pin);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .03em;
+  white-space: nowrap;
+  pointer-events: none; /* 不挡住整卡的 stretched link 点击 */
+}
+
+.pin-flag .icon { width: 12px; height: 12px; }
+
+/* 给右上角标留出空间，避免长标题压到它下面 */
+.card.is-pinned .card-head { padding-right: 76px; }
 
 .card-meta,
 .detail-meta {
