@@ -31,7 +31,8 @@ src/                          # 前端源码
 ├── index.html
 ├── style.css
 └── app.js
-assets/avatars/               # 自定义头像（可选，构建时复制进产物）
+assets/                       # 自定义资源（可选，构建时复制进产物）
+└── avatars/                  # 作者头像
 test/                         # 纯函数单测 + 本地 fixture
 dist/                         # 构建产物（gitignore，只存在于 pages 分支）
 ```
@@ -78,6 +79,10 @@ GITHUB_TOKEN=xxx GITHUB_REPOSITORY=owner/repo npm run build
 | `lightbox.enabled` | 图片放大开关 |
 | `authors.<login>.name` | 显示昵称，覆盖 GitHub login（key 大小写不敏感） |
 | `authors.<login>.avatar` | 自定义头像：完整 URL，或仓库内路径如 `assets/avatars/qiyao.svg`（构建时复制到 `dist/avatars/`） |
+| `custom.remote_css` | 远程样式表 URL，直接 `<link>` 引入（中文网字计划 / Google Fonts 这类 unicode-range 分片方案） |
+| `custom.css` | 本地 CSS 文件，复制进产物 `custom/`，排在 `style.css` 之后 |
+| `custom.fonts` | 本地字体文件，复制进产物 `fonts/`，自动生成 `@font-face` |
+| `custom.font_family` | 覆盖正文字体族（`--font-body`） |
 
 `authors` 只影响展示，不影响 `login` 字段本身——`login` 保留原值，方便以后做逻辑判断。没配置的作者完全回退到 GitHub 原值。
 
@@ -86,6 +91,64 @@ authors:
   qiyao:
     name: "绮曜"
     avatar: "assets/avatars/qiyao.svg"
+```
+
+## 自定义样式与字体
+
+`custom` 段有三种引入方式，按这个顺序进页面：
+
+```
+style.css → custom.remote_css → fonts/fonts.css（本地字体）→ custom/*.css
+```
+
+越靠后优先级越高，所以**自定义 CSS 永远能覆盖一切**。
+
+### 远程字体 CSS（推荐，中文站首选）
+
+中文网字计划、Google Fonts 这类方案是「CSS + `unicode-range` 分片」，浏览器只下载当前页面用到的字形分片，比整包字体小一个数量级：
+
+```yaml
+custom:
+  remote_css:
+    - "https://chinese-fonts-cdn.deno.dev/packages/lxgwwenkai/dist/LXGWWenKai-Regular/result.css"
+  font_family: "LXGW WenKai"
+```
+
+`remote_css` 只接受 `http(s)://` URL，不会复制进产物。字体 CSS 里已经自带 `@font-face`，`font_family` 负责把它设成正文。
+
+### 本地字体文件
+
+字体文件放仓库，构建时复制进 `dist/fonts/` 并自动生成 `@font-face`：
+
+```yaml
+custom:
+  fonts:
+    - family: "My Font"
+      src: "assets/fonts/MyFont-Regular.woff2"
+      weight: 400
+      style: normal
+  font_family: "My Font"
+```
+
+支持 `.woff2` / `.woff` / `.ttf` / `.otf` / `.eot`，`format()` 会自动对上。
+
+### 自定义 CSS
+
+```yaml
+custom:
+  css:
+    - "assets/custom.css"
+```
+
+文件会被复制到 `dist/custom/`。**注意**：CSS 里的相对 `url()` 会相对 `dist/custom/` 解析，图片要么用绝对 URL，要么也放进 `assets/` 并自己算好相对路径。
+
+`style.css` 的字体栈已经抽成 `--font-body` / `--font-mono` 两个 CSS 变量，自定义 CSS 直接改变量就行：
+
+```css
+:root {
+  --font-body: "My Font", system-ui, sans-serif;
+  --accent: #d946ef;
+}
 ```
 
 ## 设计上的几个决定
