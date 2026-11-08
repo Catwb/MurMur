@@ -499,6 +499,10 @@ a.chip-label::after {
 
 .pin-badge .icon { width: 13px; height: 13px; }
 
+/* 列表页：.card-head 是 flex-start，图标要下移半个行高差才和标题文字视觉居中
+   （标题 18px × 1.45 ≈ 26px 行高，文字中心在 13px，图标 13px 需下移 6px） */
+.card-head .pin-badge { margin-top: 6px; }
+
 .card-meta,
 .detail-meta {
   display: flex;
