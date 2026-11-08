@@ -499,12 +499,13 @@ function buildDetailView(memo, filter, nav) {
   const chips = buildLabelChips(memo.labels, filter, true);
   if (chips) head.append(chips);
   if (hasFilter(filter)) head.append(buildFilterNote(filter));
-  article.append(head);
 
   const body = h('div', { class: 'memo-body' });
   body.innerHTML = renderMarkdown(memo.content, memo.render); // 已过 DOMPurify
   decorateBody(body);
-  article.append(body);
+
+  // 标题 + 正文包进一张卡片，让详情页有边界感；翻页和操作按钮留在卡片外
+  article.append(h('div', { class: 'detail-card' }, head, body));
 
   const pager = buildPager(nav, filter);
   if (pager) article.append(pager);

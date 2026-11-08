@@ -2,6 +2,7 @@ node_modules/
 .npm-cache/
 dist/
 dist.tmp/
+_shots/
 *.log
 .DS_Store
 Thumbs.db
