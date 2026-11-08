@@ -657,13 +657,21 @@ a.chip-label::after {
 
 .memo-detail { padding: 6px 0 56px; }
 
-/* 返回列表：做成次要按钮，比纯文字链接更容易被看见和点中 */
-.back-link {
+/* 详情页顶部工具条：返回列表在左，GitHub 链接在右，同一行、同一套按钮样式 */
+.detail-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 2px 0 20px;
+}
+
+/* 工具条按钮：次要按钮的统一形态（返回列表 / 在 GitHub 查看共用） */
+.tool-btn {
   display: inline-flex;
   align-items: center;
   gap: 7px;
   min-height: 40px;
-  margin: 2px 0 20px; /* 和下面的正文卡片拉开距离，别贴在一起 */
   padding: 0 14px;
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -672,17 +680,20 @@ a.chip-label::after {
   font-family: inherit;
   font-size: 13.5px;
   font-weight: 500;
+  text-decoration: none;
   cursor: pointer;
   box-shadow: var(--shadow);
   transition: border-color .16s ease, color .16s ease, transform .16s ease;
 }
 
 @media (hover: hover) {
-  .back-link:hover {
+  .tool-btn:hover {
     border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
     color: var(--accent);
-    transform: translateX(-2px);
   }
+
+  /* 返回列表向左移 2px，有个「往回走」的方向暗示；右侧的外链按钮不动 */
+  .back-link:hover { transform: translateX(-2px); }
 }
 
 /* 详情正文的卡片容器：让内容有边界，而不是散在背景上 */
@@ -907,13 +918,6 @@ a.chip-label::after {
   font-size: 13px;
 }
 
-.detail-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 22px;
-}
-
 /* ---------------------------- 错误 / 状态 ---------------------------- */
 
 .state-box {
@@ -1045,7 +1049,8 @@ dialog.lightbox img {
   .filter-bar { padding: 4px 12px; border-radius: 14px; }
   .filter-row { gap: 10px; padding: 7px 0; }
   .filter-row-label { flex-basis: 26px; font-size: 10.5px; letter-spacing: .1em; }
-  .back-link { margin-bottom: 16px; }
+  .detail-toolbar { margin-bottom: 16px; gap: 8px; }
+  .tool-btn { padding: 0 12px; font-size: 13px; }
   .site-sub { font-size: 11.5px; }
 }
 

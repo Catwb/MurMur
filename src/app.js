@@ -491,8 +491,16 @@ function buildPager(nav, filter) {
 
 function buildDetailView(memo, filter, nav) {
   const article = h('article', { class: 'memo-detail' });
-  article.append(h('button', { class: 'back-link', type: 'button', onClick: backToList },
-    icon('arrow-left'), h('span', { text: '返回列表' })));
+
+  // 顶部工具条：返回列表在左，GitHub 链接在右，同一行、同一套按钮样式
+  const toolbar = h('div', { class: 'detail-toolbar' },
+    h('button', { class: 'tool-btn back-link', type: 'button', onClick: backToList },
+      icon('arrow-left'), h('span', { text: '返回列表' })));
+  if (memo.url) {
+    toolbar.append(h('a', { class: 'tool-btn', href: memo.url, target: '_blank', rel: 'noopener noreferrer' },
+      h('span', { text: '在 GitHub 查看' }), icon('external-link')));
+  }
+  article.append(toolbar);
 
   const head = h('header', { class: 'detail-head' });
   // 标题不走 markdown：先 escapeHtml 再插入
@@ -527,13 +535,6 @@ function buildDetailView(memo, filter, nav) {
   const pager = buildPager(nav, filter);
   if (pager) article.append(pager);
 
-  // 返回入口只保留顶部那个轻量链接，底部不再重复放「返回列表」按钮
-  const actions = h('footer', { class: 'detail-actions' });
-  if (memo.url) {
-    actions.append(h('a', { class: 'btn primary', href: memo.url, target: '_blank', rel: 'noopener noreferrer' },
-      h('span', { text: '在 GitHub 查看' }), icon('external-link')));
-  }
-  if (actions.childElementCount > 0) article.append(actions);
   return article;
 }
 
