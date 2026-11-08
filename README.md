@@ -110,8 +110,8 @@ style.css → custom.remote_css → fonts/fonts.css（本地字体）→ custom/
 ```yaml
 custom:
   remote_css:
-    - "https://chinese-fonts-cdn.deno.dev/packages/lxgwwenkai/dist/LXGWWenKai-Regular/result.css"
-  font_family: "LXGW WenKai"
+    - "https://cdn.xrbk.cn/fonts/LXGWWenKaiGB-Regular/result.css"
+  font_family: "LXGW WenKai GB"
 ```
 
 `remote_css` 只接受 `http(s)://` URL，不会复制进产物。字体 CSS 里已经自带 `@font-face`，`font_family` 负责把它设成正文。
