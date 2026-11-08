@@ -1,0 +1,65 @@
+name: build
+
+on:
+  issues:
+    types: [opened, edited, reopened, closed, deleted, labeled, unlabeled]
+  workflow_dispatch:
+
+# 全量重建是幂等的，推独立分支也没有并发冲突，所以让最新一次直接赢
+concurrency:
+  group: build
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  issues: read
+
+jobs:
+  build:
+    # 粗筛：只拦完全无关的路人 issue，精确白名单在 config.yaml
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.issue.author_association != 'NONE'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: build
+        run: node scripts/build.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
+      - name: push to pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP"
+          rm -rf pages-out && mkdir pages-out && cd pages-out
+          git init -q
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git fetch -q --depth=1 origin pages; then
+            git checkout -q FETCH_HEAD
+          else
+            git checkout -q --orphan pages
+          fi
+          # --exclude=.git 必须保留：--delete 会把目标里源没有的 .git 一起删掉
+          rsync -a --delete --exclude=.git "$GITHUB_WORKSPACE/dist/" ./
+          git add -A
+          if git diff --cached --quiet; then
+            echo "no changes, skip push"
+            exit 0
+          fi
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -q -m "build: ${GITHUB_RUN_ID}"
+          git push -q origin HEAD:pages

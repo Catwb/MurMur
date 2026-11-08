@@ -1,0 +1,46 @@
+# ============================================================
+# github-memos 唯一内容配置
+# 改完这个文件，下一次构建（issue 事件或手动 dispatch）生效
+# ============================================================
+
+site:
+  title: "Murmur"
+  # feed 里拼绝对链接用；末尾不要带斜杠
+  base_url: "https://example.github.io/github-memos"
+
+memos:
+  # 至少命中一个才收录；空数组 = 不限
+  include_labels: []
+  # 命中任意一个即排除
+  exclude_labels: []
+  # 命中则置顶（置顶 label 不会出现在展示标签里）
+  pinned_labels: ["置顶", "pinned"]
+  # 与 workflow 粗筛配合：workflow 只拦 NONE，精确白名单在这里
+  allowed_associations: ["OWNER", "MEMBER", "COLLABORATOR"]
+  # 排序后截断；0 = 不限。pinned 条目优先保留，不会被截掉
+  max_count: 0
+  # false = 关闭的 issue 从站点消失
+  include_closed: false
+  # created_desc | created_asc | updated_desc
+  sort: created_desc
+  # 标题为空时取正文首个非空行（strip markdown 后）截 80 字
+  title_fallback: true
+  # 下发给前端，保证「数据 + 渲染规则」同源
+  render:
+    gfm: true
+    breaks: true
+
+build:
+  output_dir: dist
+  json_path: memos.json
+  detail_dir: memo
+  group_by_date: true
+
+feed:
+  enabled: true
+  formats: ["rss", "json"]
+  # true = 正文转 HTML 全文；false = 纯文本摘要 + 链接
+  full_content: false
+
+lightbox:
+  enabled: true

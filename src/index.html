@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Murmur · 用 GitHub Issue 当数据源的说说站">
+<!-- 站点标题由构建脚本从 config.yaml 注入，保证 config 是唯一内容配置 -->
+<meta name="site-title" content="{{SITE_TITLE}}">
+<title>{{SITE_TITLE}}</title>
+<link rel="stylesheet" href="style.css">
+
+<!--
+  importmap 必须在任何 type="module" 脚本之前出现。
+  裸模块名 marked / dompurify 由它映射到构建产物里的本地 vendor 文件，
+  不依赖任何 CDN，站点整体可离线自包含。
+-->
+<script type="importmap">
+{
+  "imports": {
+    "marked": "./vendor/marked.esm.js",
+    "dompurify": "./vendor/purify.es.mjs"
+  }
+}
+</script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap site-header-inner">
+    <a class="brand" href="#/">📝 <span>{{SITE_TITLE}}</span></a>
+    <span class="site-sub" id="site-sub"></span>
+  </div>
+</header>
+
+<!-- 详情翻页时顶部的不确定进度条（2px，纯 CSS 动画） -->
+<div class="progress" id="progress" hidden aria-hidden="true"><span class="progress-bar"></span></div>
+
+<main id="app" class="wrap"></main>
+
+<footer class="site-footer">
+  <div class="wrap">数据来自 GitHub Issues · 纯静态构建</div>
+</footer>
+
+<noscript>
+  <div class="wrap"><p class="noscript">这个页面需要 JavaScript 才能显示内容。</p></div>
+</noscript>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

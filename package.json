@@ -1,0 +1,20 @@
+{
+  "name": "murmur",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Murmur — 基于 GitHub Issue 的说说站",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:fixture": "node scripts/build.mjs --fixture test/fixtures/issues.json",
+    "test": "node --test test/",
+    "serve": "node scripts/serve.mjs"
+  },
+  "dependencies": {
+    "dompurify": "^3.2.0",
+    "marked": "^15.0.0"
+  },
+  "devDependencies": {
+    "js-yaml": "^4.1.0"
+  }
+}
