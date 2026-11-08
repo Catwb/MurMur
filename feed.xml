@@ -5,5 +5,13 @@
     <link>https://catwb.github.io/MurMur</link>
     <description>Murmur</description>
     <language>zh-CN</language>
+    <lastBuildDate>Sun, 08 Nov 2026 12:57:26 GMT</lastBuildDate>
+    <item>
+      <title>测试</title>
+      <link>https://catwb.github.io/MurMur/#/memo/1</link>
+      <guid isPermaLink="false">1</guid>
+      <pubDate>Sun, 08 Nov 2026 12:57:26 GMT</pubDate>
+      <description><![CDATA[你好，这是我的第一篇说说]]></description>
+    </item>
   </channel>
 </rss>

@@ -3,5 +3,19 @@
   "title": "Murmur",
   "home_page_url": "https://catwb.github.io/MurMur",
   "feed_url": "https://catwb.github.io/MurMur/feed.json",
-  "items": []
+  "items": [
+    {
+      "id": "1",
+      "url": "https://catwb.github.io/MurMur/#/memo/1",
+      "title": "测试",
+      "content_text": "你好，这是我的第一篇说说",
+      "date_published": "2026-11-08T12:57:26Z",
+      "date_modified": "2026-11-08T12:57:26Z",
+      "authors": [
+        {
+          "name": "Catwb"
+        }
+      ]
+    }
+  ]
 }

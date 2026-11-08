@@ -1,0 +1,28 @@
+{
+  "number": 1,
+  "title": "测试",
+  "content": "你好，这是我的第一篇说说",
+  "author": {
+    "login": "Catwb",
+    "name": "绮曜",
+    "avatar_url": "avatars/Catwb.svg",
+    "url": "https://github.com/Catwb"
+  },
+  "created_at": "2026-11-08T12:57:26Z",
+  "updated_at": "2026-11-08T12:57:26Z",
+  "labels": [
+    {
+      "name": "memo",
+      "color": "c68783"
+    }
+  ],
+  "pinned": false,
+  "url": "https://github.com/Catwb/MurMur/issues/1",
+  "state": "open",
+  "render": {
+    "gfm": true,
+    "breaks": true
+  },
+  "prev": null,
+  "next": null
+}
