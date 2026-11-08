@@ -167,6 +167,8 @@ custom:
 
 **前端不打包。** `app.js` 以 ESM 原样发布，`marked` / `dompurify` 由 `index.html` 的 importmap 指向 `dist/vendor/` 下的本地副本。产物自包含、零 CDN，也不需要构建期启动子进程。
 
+**图标用 Lucide 的 SVG sprite 内联。** 构建时从 `lucide-static` 取需要的图标，拼成 `<symbol>` 注入 `index.html`，页面里用 `<use href="#icon-xxx">` 引用。不用 `<img>` 是因为 Lucide 的 `stroke="currentColor"` 需要继承文字颜色，`<img>` 做不到；内联 sprite 还能省掉每个图标的独立请求。
+
 ## 已知限制
 
 - 正文里的 `#tag` 不解析，标签只从 label 取（正则容易误伤代码块和标题）

@@ -28,9 +28,15 @@
 </head>
 <body>
 
+<!-- Lucide 图标 sprite，构建脚本从 lucide-static 注入；页面里用 <use href="#icon-xxx"> 引用 -->
+{{ICON_SPRITE}}
+
 <header class="site-header">
   <div class="wrap site-header-inner">
-    <a class="brand" href="#/">📝 <span>{{SITE_TITLE}}</span></a>
+    <a class="brand" href="#/">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-notebook-pen"></use></svg>
+      <span>{{SITE_TITLE}}</span>
+    </a>
     <span class="site-sub" id="site-sub"></span>
   </div>
 </header>

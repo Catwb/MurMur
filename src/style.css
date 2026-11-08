@@ -97,6 +97,37 @@ a { color: var(--accent); }
 
 #app { min-height: 62vh; padding-bottom: 8px; }
 
+/* ------------------------------ 图标 ------------------------------ */
+
+/* Lucide sprite 容器：不占位，但保留 symbol 可被 <use> 引用 */
+.icon-sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 1em;
+  height: 1em;
+  vertical-align: -.125em;
+}
+
+.icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.brand .icon { width: 18px; height: 18px; }
+.btn .icon { width: 16px; height: 16px; }
+.empty-icon .icon { width: 40px; height: 40px; }
+.state-icon .icon { width: 36px; height: 36px; }
+
 /* ------------------------------ 页头 ------------------------------ */
 
 .site-header {
@@ -455,6 +486,9 @@ a.chip-label::after {
 }
 
 .pin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   flex: 0 0 auto;
   color: var(--pin);
   font-size: 11.5px;
@@ -462,6 +496,8 @@ a.chip-label::after {
   letter-spacing: .02em;
   white-space: nowrap;
 }
+
+.pin-badge .icon { width: 13px; height: 13px; }
 
 .card-meta,
 .detail-meta {
@@ -528,7 +564,7 @@ a.chip-label::after {
   color: var(--text-soft);
 }
 
-.empty-icon { font-size: 38px; line-height: 1; }
+.empty-icon { color: var(--text-faint); line-height: 1; }
 
 .empty-text { margin: 16px 0 22px; font-size: 15px; }
 
@@ -536,23 +572,31 @@ a.chip-label::after {
 
 .memo-detail { padding: 6px 0 56px; }
 
+/* 返回列表：做成次要按钮，比纯文字链接更容易被看见和点中 */
 .back-link {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  min-height: 44px;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--text-faint);
+  gap: 7px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-elev);
+  color: var(--text-soft);
   font-family: inherit;
-  font-size: 14px;
+  font-size: 13.5px;
+  font-weight: 500;
   cursor: pointer;
-  transition: color .16s ease;
+  box-shadow: var(--shadow);
+  transition: border-color .16s ease, color .16s ease, transform .16s ease;
 }
 
 @media (hover: hover) {
-  .back-link:hover { color: var(--accent); }
+  .back-link:hover {
+    border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+    color: var(--accent);
+    transform: translateX(-2px);
+  }
 }
 
 /* 详情正文的卡片容器：让内容有边界，而不是散在背景上 */
@@ -747,7 +791,19 @@ a.chip-label::after {
 
 .pager-next { text-align: right; }
 
-.pager-label { color: var(--text-faint); font-size: 11.5px; font-weight: 600; }
+.pager-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-faint);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.pager-label .icon { width: 13px; height: 13px; }
+
+/* 「下一条」的箭头放到文字右边 */
+.pager-next .pager-label { flex-direction: row-reverse; }
 
 .pager-title {
   font-size: 14px;
@@ -779,7 +835,7 @@ a.chip-label::after {
   text-align: center;
 }
 
-.state-icon { font-size: 34px; line-height: 1; }
+.state-icon { color: var(--danger); line-height: 1; }
 
 .state-title {
   margin: 16px 0 6px;

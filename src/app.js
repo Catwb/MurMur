@@ -62,6 +62,18 @@ function h(tag, attrs, ...children) {
   return node;
 }
 
+/**
+ * 内联 SVG 图标：引用 index.html 里构建时注入的 sprite（来源 lucide-static）。
+ * 用 <use> 而不是 <img>，stroke="currentColor" 才能继承文字颜色。
+ */
+function icon(name, className) {
+  const wrap = h('span', { class: `icon${className ? ` ${className}` : ''}`, 'aria-hidden': 'true' });
+  wrap.innerHTML =
+    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ` +
+    `stroke-linecap="round" stroke-linejoin="round"><use href="#icon-${name}"></use></svg>`;
+  return wrap;
+}
+
 /** 转义 HTML（标题不走 markdown，插入前必须转义） */
 function escapeHtml(value) {
   return String(value ?? '')
@@ -290,7 +302,7 @@ function buildCard(memo) {
   const card = h('article', { class: `card${memo.pinned ? ' is-pinned' : ''}`, dataset: { number: String(number) } });
   const head = h('div', { class: 'card-head' },
     h('a', { class: 'card-title', href: memoHash(number, {}), text: String(memo.title || '').trim() || EMPTY_TITLE }));
-  if (memo.pinned) head.append(h('span', { class: 'pin-badge', title: '置顶', 'aria-label': '置顶', text: '📌' }));
+  if (memo.pinned) head.append(h('span', { class: 'pin-badge', title: '置顶', 'aria-label': '置顶' }, icon('pin')));
   card.append(head);
   const meta = h('div', { class: 'card-meta' },
     h('time', { datetime: memo.created_at || '', text: isoDate(memo.created_at) }));
@@ -336,7 +348,7 @@ function buildListView() {
     class: 'btn', type: 'button', text: '清除筛选', onClick: () => setFilter({ tag: '', month: '' }),
   });
   state.emptyEl = h('div', { class: 'empty', hidden: true },
-    h('div', { class: 'empty-icon', text: '🍃' }), state.emptyTextEl, state.emptyClearBtn);
+    h('div', { class: 'empty-icon' }, icon('leaf')), state.emptyTextEl, state.emptyClearBtn);
 
   state.cardEls = new Map();
   for (const memo of state.memos) {
@@ -458,15 +470,17 @@ function buildPager(nav, filter) {
   if (nav.outsideFilter) return h('p', { class: 'pager-note', text: '当前说说不在此筛选结果内，翻页已隐藏。' });
 
   const side = (item, isPrev) => {
-    const label = isPrev ? '← 上一条' : '下一条 →';
+    const label = isPrev ? '上一条' : '下一条';
     const className = `pager-link ${isPrev ? 'pager-prev' : 'pager-next'}`;
+    const labelEl = h('span', { class: 'pager-label' },
+      icon(isPrev ? 'arrow-left' : 'arrow-right'), h('span', { text: label }));
     if (!item) {
       return h('span', { class: `${className} is-disabled` },
-        h('span', { class: 'pager-label', text: label }),
+        labelEl,
         h('span', { class: 'pager-title', text: isPrev ? '已经是第一条' : '已经是最后一条' }));
     }
     return h('a', { class: className, href: memoHash(item.number, filter) },
-      h('span', { class: 'pager-label', text: label }),
+      labelEl,
       h('span', { class: 'pager-title', text: String(item.title || '').trim() || EMPTY_TITLE }));
   };
   return h('nav', { class: 'pager', 'aria-label': '说说翻页' }, side(nav.prev, true), side(nav.next, false));
@@ -474,7 +488,8 @@ function buildPager(nav, filter) {
 
 function buildDetailView(memo, filter, nav) {
   const article = h('article', { class: 'memo-detail' });
-  article.append(h('button', { class: 'back-link', type: 'button', text: '← 返回列表', onClick: backToList }));
+  article.append(h('button', { class: 'back-link', type: 'button', onClick: backToList },
+    icon('arrow-left'), h('span', { text: '返回列表' })));
 
   const head = h('header', { class: 'detail-head' });
   // 标题不走 markdown：先 escapeHtml 再插入
@@ -490,7 +505,7 @@ function buildDetailView(memo, filter, nav) {
   if (memo.author && memo.author.login) {
     meta.append(h('span', { class: 'meta-sep', text: '·' }), authorLink(memo.author, 'avatar-md'));
   }
-  if (memo.pinned) meta.append(h('span', { class: 'pin-badge', text: '📌 置顶' }));
+  if (memo.pinned) meta.append(h('span', { class: 'pin-badge' }, icon('pin'), h('span', { text: '置顶' })));
   if (memo.state && memo.state !== 'open') {
     meta.append(h('span', { class: 'state-badge', text: memo.state === 'closed' ? '已关闭' : String(memo.state) }));
   }
@@ -512,7 +527,8 @@ function buildDetailView(memo, filter, nav) {
   // 返回入口只保留顶部那个轻量链接，底部不再重复放「返回列表」按钮
   const actions = h('footer', { class: 'detail-actions' });
   if (memo.url) {
-    actions.append(h('a', { class: 'btn primary', href: memo.url, target: '_blank', rel: 'noopener noreferrer', text: '在 GitHub 查看' }));
+    actions.append(h('a', { class: 'btn primary', href: memo.url, target: '_blank', rel: 'noopener noreferrer' },
+      h('span', { text: '在 GitHub 查看' }), icon('external-link')));
   }
   if (actions.childElementCount > 0) article.append(actions);
   return article;
@@ -562,10 +578,11 @@ function bindLightbox(root) {
 
 function buildErrorView(title, message, retry) {
   const actions = h('div', { class: 'error-actions' });
-  if (retry) actions.append(h('button', { class: 'btn primary', type: 'button', text: '重试', onClick: retry }));
+  if (retry) actions.append(h('button', { class: 'btn primary', type: 'button', onClick: retry },
+    icon('refresh-cw'), h('span', { text: '重试' })));
   actions.append(h('button', { class: 'btn', type: 'button', text: '返回列表', onClick: backToList }));
   return h('section', { class: 'state-box error-box' },
-    h('div', { class: 'state-icon', text: '⚠️' }),
+    h('div', { class: 'state-icon' }, icon('triangle-alert')),
     h('h2', { class: 'state-title', text: title }),
     message ? h('p', { class: 'state-text', text: message }) : null,
     actions);

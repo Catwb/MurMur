@@ -15,6 +15,7 @@
     "marked": "^15.0.0"
   },
   "devDependencies": {
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.1.0",
+    "lucide-static": "^1.69.0"
   }
 }

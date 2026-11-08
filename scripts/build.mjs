@@ -565,6 +565,44 @@ async function emitCustom(outDir, cfg) {
   return links;
 }
 
+/**
+ * 图标：从 lucide-static 取指定图标，拼成一个内联 SVG sprite 注入 index.html。
+ * 用 <symbol> + <use> 而不是 <img>，这样 stroke="currentColor" 能继承文字颜色。
+ */
+const ICONS = [
+  'arrow-left',
+  'arrow-right',
+  'pin',
+  'leaf',
+  'triangle-alert',
+  'notebook-pen',
+  'external-link',
+  'refresh-cw',
+];
+
+async function buildIconSprite() {
+  const parts = [];
+  for (const name of ICONS) {
+    const file = path.join(ROOT, 'node_modules/lucide-static/icons', `${name}.svg`);
+    if (!fs.existsSync(file)) {
+      warn(`图标缺失，跳过：${name}（先跑 npm install）`);
+      continue;
+    }
+    const svg = await fsp.readFile(file, 'utf8');
+    const inner = svg
+      .replace(/<!--[\s\S]*?-->/g, '')
+      .replace(/^[\s\S]*?<svg[^>]*>/, '')
+      .replace(/<\/svg>[\s\S]*$/, '')
+      .trim();
+    parts.push(
+      `<symbol id="icon-${name}" viewBox="0 0 24 24" fill="none" stroke="currentColor" ` +
+        `stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${inner}</symbol>`
+    );
+  }
+  if (parts.length === 0) return '';
+  return `<svg xmlns="http://www.w3.org/2000/svg" class="icon-sprite" aria-hidden="true">${parts.join('')}</svg>`;
+}
+
 async function emit({ issues, cfg, outDir }) {
   const jsonPath = cfg?.build?.json_path ?? 'memos.json';
   const detailDir = cfg?.build?.detail_dir ?? 'memo';
@@ -575,6 +613,7 @@ async function emit({ issues, cfg, outDir }) {
   const customLinkHtml = customLinks
     .map((href) => `<link rel="stylesheet" href="${escapeXml(href)}">`)
     .join('\n');
+  const iconSprite = await buildIconSprite();
 
   // 列表
   const list = buildList(issues, cfg, assets);
@@ -604,7 +643,11 @@ async function emit({ issues, cfg, outDir }) {
   const copiedHtml = await copyTemplate(
     path.join(SRC_DIR, 'index.html'),
     path.join(outDir, 'index.html'),
-    { '{{SITE_TITLE}}': escapeXml(siteTitle), '{{CUSTOM_CSS_LINKS}}': customLinkHtml }
+    {
+      '{{SITE_TITLE}}': escapeXml(siteTitle),
+      '{{CUSTOM_CSS_LINKS}}': customLinkHtml,
+      '{{ICON_SPRITE}}': iconSprite,
+    }
   );
   const copiedCss = await copyIfExists(path.join(SRC_DIR, 'style.css'), path.join(outDir, 'style.css'));
   const copiedJs = await copyIfExists(path.join(SRC_DIR, 'app.js'), path.join(outDir, 'app.js'));
