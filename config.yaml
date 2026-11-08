@@ -1,16 +1,17 @@
 # ============================================================
-# github-memos 唯一内容配置
+# Murmur 唯一内容配置
 # 改完这个文件，下一次构建（issue 事件或手动 dispatch）生效
 # ============================================================
 
 site:
   title: "Murmur"
   # feed 里拼绝对链接用；末尾不要带斜杠
-  base_url: "https://example.github.io/github-memos"
+  base_url: "https://catwb.github.io/MurMur"
 
 memos:
   # 至少命中一个才收录；空数组 = 不限
-  include_labels: []  # 命中任意一个即排除
+  include_labels: []
+  # 命中任意一个即排除
   exclude_labels: []
   # 命中则置顶（置顶 label 不会出现在展示标签里）
   pinned_labels: ["置顶", "pinned"]

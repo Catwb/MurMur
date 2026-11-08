@@ -56,7 +56,7 @@ GITHUB_TOKEN=xxx GITHUB_REPOSITORY=owner/repo npm run build
 
 1. 第一次跑 workflow（`Actions → build → Run workflow`），它会创建 `pages` 分支
 2. `Settings → Pages → Source: Deploy from a branch → pages / (root)`
-3. 改 `config.yaml` 里的 `site.base_url` 为你的实际地址（feed 的绝对链接要用）
+3. `config.yaml` 的 `site.base_url` 已指向 `https://catwb.github.io/MurMur`（feed 的绝对链接要用）；fork 或换仓库时改成你自己的地址
 4. 有自定义域名的话，把 `CNAME` 放进 `src/`，构建时会复制到产物里
 
 ## config.yaml 速查
