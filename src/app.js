@@ -265,8 +265,8 @@ function chipButton(label, active, onClick, count) {
 }
 
 /** 一行筛选 chips：全部 + 若干选项（items 形如 { label, count? }） */
-function chipRow(labelText, allActive, onAll, items, isActive, onPick) {
-  return h('div', { class: 'filter-row' },
+function chipRow(labelText, allActive, onAll, items, isActive, onPick, kind) {
+  return h('div', { class: `filter-row${kind ? ` filter-row-${kind}` : ''}` },
     h('span', { class: 'filter-row-label', text: labelText }),
     h('div', { class: 'chips' },
       chipButton('全部', allActive, onAll),
@@ -381,7 +381,7 @@ function renderFilterBar(filter) {
   const children = [
     chipRow('标签', !filter.tag, () => setFilter({ ...filter, tag: '' }), collectTags(),
       (tag) => filter.tag === tag.label,
-      (tag) => setFilter({ ...filter, tag: filter.tag === tag.label ? '' : tag.label })),
+      (tag) => setFilter({ ...filter, tag: filter.tag === tag.label ? '' : tag.label }), 'tag'),
   ];
 
   const months = collectMonths();
@@ -389,7 +389,7 @@ function renderFilterBar(filter) {
     children.push(chipRow('月份', !filter.month, () => setFilter({ ...filter, month: '' }),
       months.map((month) => ({ label: month })),
       (item) => filter.month === item.label,
-      (item) => setFilter({ ...filter, month: filter.month === item.label ? '' : item.label })));
+      (item) => setFilter({ ...filter, month: filter.month === item.label ? '' : item.label }), 'month'));
   }
 
   // 筛选栏与详情页共用同一个「当前筛选 + 清除」组件
