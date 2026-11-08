@@ -201,32 +201,44 @@ a { color: var(--accent); }
 
 /* ------------------------------ 筛选栏 ------------------------------ */
 
+/* 两行筛选收进一个浅色面板：有边界、有层次，不再是一排孤零零的胶囊 */
 .filter-bar {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 16px 0 2px;
+  margin: 18px 0 18px;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--bg-elev);
+  box-shadow: var(--shadow);
 }
 
 .filter-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   min-width: 0;
+  padding: 8px 0;
+}
+
+.filter-row + .filter-row {
+  border-top: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
 }
 
 .filter-row-label {
-  flex: 0 0 auto;
+  flex: 0 0 30px;
   color: var(--text-faint);
-  font-size: 11.5px;
-  font-weight: 600;
-  letter-spacing: .08em;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  line-height: 1;
 }
 
 .filter-row .chips {
   flex: 1 1 auto;
   min-width: 0;
   margin-top: 0;
+  gap: 6px;
   flex-wrap: nowrap;
   overflow-x: auto;
   overscroll-behavior-x: contain;
@@ -239,6 +251,55 @@ a { color: var(--accent); }
 
 /* nowrap 横向滚动时 chip 不允许被压缩 */
 .filter-row .chip { flex: 0 0 auto; }
+
+/* 筛选 chip：视觉 30px 的小方块，触控区用伪元素撑到 44px */
+.filter-row .chip {
+  position: relative;
+  min-height: 30px;
+  padding: 0 11px;
+  border-color: transparent;
+  border-radius: 9px;
+  /* 极淡的底，让「可点」这件事看得出来，又不抢视线 */
+  background: color-mix(in srgb, var(--bg-soft) 62%, transparent);
+  color: var(--text-soft);
+  font-size: 12.5px;
+  font-weight: 500;
+  transition: background-color .16s ease, color .16s ease, border-color .16s ease;
+}
+
+.filter-row .chip::after {
+  content: "";
+  position: absolute;
+  inset: -7px -1px;
+  border-radius: inherit;
+}
+
+@media (hover: hover) {
+  .filter-row .chip:hover {
+    background: var(--bg-soft);
+    color: var(--text);
+  }
+}
+
+.filter-row .chip.is-active {
+  border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.filter-row .chip-count {
+  font-size: 10.5px;
+  opacity: .6;
+}
+
+.filter-row .chip.is-active .chip-count { opacity: .8; }
+
+/* 月份等数字型选项用等宽数字，扫读更整齐 */
+.filter-row-month .chip {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .01em;
+}
 
 .filter-status {
   display: flex;
@@ -602,6 +663,7 @@ a.chip-label::after {
   align-items: center;
   gap: 7px;
   min-height: 40px;
+  margin: 2px 0 20px; /* 和下面的正文卡片拉开距离，别贴在一起 */
   padding: 0 14px;
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -906,9 +968,9 @@ a.chip-label::after {
 .sk-line { width: 100%; height: 12px; margin-top: 11px; }
 .sk-line.short { width: 68%; }
 .sk-h1 { width: 74%; height: 28px; margin-top: 10px; }
-.sk-back { width: 92px; height: 14px; }
+.sk-back { width: 92px; height: 14px; margin-bottom: 20px; }
 .sk-block { width: 100%; height: 96px; margin-top: 24px; }
-.sk-chip { width: 84px; height: 44px; border-radius: 999px; }
+.sk-chip { width: 84px; height: 30px; border-radius: 9px; }
 
 .card-skeleton { pointer-events: none; }
 
@@ -979,7 +1041,11 @@ dialog.lightbox img {
 @media (max-width: 480px) {
   .pager { grid-template-columns: 1fr; }
   .pager-next { text-align: left; }
-  .filter-row-label { display: none; }
+  /* 窄屏保留标签文字（「全部」在标签行和月份行含义不同），只收紧尺寸 */
+  .filter-bar { padding: 4px 12px; border-radius: 14px; }
+  .filter-row { gap: 10px; padding: 7px 0; }
+  .filter-row-label { flex-basis: 26px; font-size: 10.5px; letter-spacing: .1em; }
+  .back-link { margin-bottom: 16px; }
   .site-sub { font-size: 11.5px; }
 }
 
