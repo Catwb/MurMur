@@ -280,9 +280,11 @@ a.chip {
 
 .chip.is-active .chip-count { opacity: .85; }
 
-/* 展示用 label chip：颜色由 JS 按 label.color 注入，文字色按对比度选黑/白 */
+/* 展示用 label chip：JS 只下发 --label-color，浅底与彩字由 color-mix 派生，
+   深色模式自动跟着背景变量走，不需要 JS 再算对比色 */
 .chip-label {
   border-color: transparent;
+  border-radius: 8px;
   font-weight: 600;
 }
 
@@ -294,13 +296,31 @@ span.chip-label {
   cursor: default;
 }
 
+/* 详情页标签可点击：视觉保持小巧，用伪元素把点击区向外撑到 44px */
 a.chip-label {
-  min-height: 44px;
-  padding: 0 14px;
-  font-size: 12.5px;
+  position: relative;
+  min-height: 28px;
+  padding: 2px 11px;
+  font-size: 12px;
+  transition: filter .16s ease;
 }
 
-.chip-label.is-colored { border-color: rgba(0, 0, 0, .07); }
+a.chip-label::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: inherit;
+}
+
+@media (hover: hover) {
+  a.chip-label:hover { filter: brightness(.96) saturate(1.1); }
+}
+
+.chip-label.is-colored {
+  background: color-mix(in srgb, var(--label-color) 13%, var(--bg-elev));
+  color: color-mix(in srgb, var(--label-color) 66%, var(--text));
+  border-color: color-mix(in srgb, var(--label-color) 26%, transparent);
+}
 
 /* ------------------------------ 按钮 ------------------------------ */
 

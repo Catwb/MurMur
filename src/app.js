@@ -44,7 +44,13 @@ function h(tag, attrs, ...children) {
       if (key === 'class') node.className = value;
       else if (key === 'text') node.textContent = value;
       else if (key === 'dataset') Object.assign(node.dataset, value);
-      else if (key === 'style' && typeof value === 'object') Object.assign(node.style, value);
+      else if (key === 'style' && typeof value === 'object') {
+        for (const [prop, val] of Object.entries(value)) {
+          // CSS 自定义属性必须走 setProperty，不能当普通属性赋值
+          if (prop.startsWith('--')) node.style.setProperty(prop, val);
+          else node.style[prop] = val;
+        }
+      }
       else if (key.startsWith('on') && typeof value === 'function') node.addEventListener(key.slice(2).toLowerCase(), value);
       else node.setAttribute(key, value === true ? '' : String(value));
     }
@@ -79,14 +85,6 @@ function normalizeHex(color) {
   if (/^[0-9a-f]{3}$/i.test(value)) value = value.split('').map((c) => c + c).join('');
   if (/^[0-9a-f]{8}$/i.test(value)) value = value.slice(0, 6);
   return /^[0-9a-f]{6}$/i.test(value) ? `#${value.toLowerCase()}` : '';
-}
-
-/** 按 WCAG 相对亮度选黑字或白字，保证浅色底配深色字 */
-function contrastColor(hex) {
-  const int = parseInt(hex.slice(1), 16);
-  const channel = (v) => (v / 255 <= 0.03928 ? v / 255 / 12.92 : (((v / 255) + 0.055) / 1.055) ** 2.4);
-  const l = 0.2126 * channel((int >> 16) & 255) + 0.7152 * channel((int >> 8) & 255) + 0.0722 * channel(int & 255);
-  return (l + 0.05) / 0.05 >= 1.05 / (l + 0.05) ? '#111827' : '#ffffff';
 }
 
 /* ------------------------------ 筛选与路由 ------------------------------ */
@@ -233,7 +231,8 @@ function buildLabelChips(labels, filter, interactive) {
   for (const label of list) {
     const name = String(label.name);
     const background = normalizeHex(label.color);
-    const style = background ? { backgroundColor: background, color: contrastColor(background) } : {};
+    // 只下发颜色变量，浅底/彩字由 CSS 的 color-mix 派生，深色模式自动跟着走
+    const style = background ? { '--label-color': background } : {};
     const className = `chip chip-label${background ? ' is-colored' : ''}`;
     wrap.append(
       interactive
