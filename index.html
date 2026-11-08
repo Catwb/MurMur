@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Murmur · 用 GitHub Issue 当数据源的说说站">
+<!-- 站点标题由构建脚本从 config.yaml 注入，保证 config 是唯一内容配置 -->
+<meta name="site-title" content="Murmur">
+<title>Murmur</title>
+<link rel="stylesheet" href="style.css">
+<!-- 自定义字体 / CSS 由构建脚本按 config.yaml 的 custom 段注入，永远排在 style.css 之后 -->
+<link rel="stylesheet" href="https://cdn.xrbk.cn/fonts/LXGWWenKaiGB-Regular/result.css">
+<link rel="stylesheet" href="fonts/fonts.css">
+
+<!--
+  importmap 必须在任何 type="module" 脚本之前出现。
+  裸模块名 marked / dompurify 由它映射到构建产物里的本地 vendor 文件，
+  不依赖任何 CDN，站点整体可离线自包含。
+-->
+<script type="importmap">
+{
+  "imports": {
+    "marked": "./vendor/marked.esm.js",
+    "dompurify": "./vendor/purify.es.mjs"
+  }
+}
+</script>
+</head>
+<body>
+
+<!-- Lucide 图标 sprite，构建脚本从 lucide-static 注入；页面里用 <use href="#icon-xxx"> 引用 -->
+<svg xmlns="http://www.w3.org/2000/svg" class="icon-sprite" aria-hidden="true"><symbol id="icon-arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7" />
+  <path d="M19 12H5" /></symbol><symbol id="icon-arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" />
+  <path d="m12 5 7 7-7 7" /></symbol><symbol id="icon-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5" />
+  <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z" /></symbol><symbol id="icon-leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20a10 10 0 0010-10 25.9 25.9 0 00-1.04-7.281 1 1 0 00-1.755-.325C15.833 5.5 13 5.5 9.8 6.1A7 7 0 0011 20" />
+  <path d="M2 21a5 5 0 012.911-4.544C7.613 15.212 8.351 15.24 11 13" /></symbol><symbol id="icon-triangle-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
+  <path d="M12 9v4" />
+  <path d="M12 17h.01" /></symbol><symbol id="icon-notebook-pen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4" />
+  <path d="M2 6h4" />
+  <path d="M2 10h4" />
+  <path d="M2 14h4" />
+  <path d="M2 18h4" />
+  <path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" /></symbol><symbol id="icon-external-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6" />
+  <path d="M10 14 21 3" />
+  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /></symbol><symbol id="icon-refresh-cw" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+  <path d="M21 3v5h-5" />
+  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+  <path d="M8 16H3v5" /></symbol></svg>
+
+<header class="site-header">
+  <div class="wrap site-header-inner">
+    <a class="brand" href="#/">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-notebook-pen"></use></svg>
+      <span>Murmur</span>
+    </a>
+    <span class="site-sub" id="site-sub"></span>
+  </div>
+</header>
+
+<!-- 详情翻页时顶部的不确定进度条（2px，纯 CSS 动画） -->
+<div class="progress" id="progress" hidden aria-hidden="true"><span class="progress-bar"></span></div>
+
+<main id="app" class="wrap"></main>
+
+<footer class="site-footer">
+  <div class="wrap">数据来自 GitHub Issues · 纯静态构建</div>
+</footer>
+
+<noscript>
+  <div class="wrap"><p class="noscript">这个页面需要 JavaScript 才能显示内容。</p></div>
+</noscript>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
