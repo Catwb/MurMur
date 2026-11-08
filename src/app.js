@@ -509,12 +509,12 @@ function buildDetailView(memo, filter, nav) {
   const pager = buildPager(nav, filter);
   if (pager) article.append(pager);
 
+  // 返回入口只保留顶部那个轻量链接，底部不再重复放「返回列表」按钮
   const actions = h('footer', { class: 'detail-actions' });
   if (memo.url) {
     actions.append(h('a', { class: 'btn primary', href: memo.url, target: '_blank', rel: 'noopener noreferrer', text: '在 GitHub 查看' }));
   }
-  actions.append(h('button', { class: 'btn', type: 'button', text: '返回列表', onClick: backToList }));
-  article.append(actions);
+  if (actions.childElementCount > 0) article.append(actions);
   return article;
 }
 
