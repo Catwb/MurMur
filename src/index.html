@@ -9,6 +9,8 @@
 <meta name="site-title" content="{{SITE_TITLE}}">
 <title>{{SITE_TITLE}}</title>
 <link rel="stylesheet" href="style.css">
+<!-- 自定义字体 / CSS 由构建脚本按 config.yaml 的 custom 段注入，永远排在 style.css 之后 -->
+{{CUSTOM_CSS_LINKS}}
 
 <!--
   importmap 必须在任何 type="module" 脚本之前出现。

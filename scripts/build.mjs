@@ -457,10 +457,124 @@ async function copyVendor(outDir) {
   }
 }
 
+const FONT_FORMATS = {
+  '.woff2': 'woff2',
+  '.woff': 'woff',
+  '.ttf': 'truetype',
+  '.otf': 'opentype',
+  '.eot': 'embedded-opentype',
+};
+
+function sanitizeFilename(value) {
+  return (
+    String(value ?? '')
+      .replace(/[^a-zA-Z0-9_-]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'font'
+  );
+}
+
+/**
+ * 自定义 CSS / 字体：复制进产物、生成 @font-face，返回要注入 index.html 的 <link> 列表。
+ * 顺序约定：字体 CSS 在前，自定义 CSS 在后 —— 自定义 CSS 永远能覆盖一切。
+ */
+async function emitCustom(outDir, cfg) {
+  const custom = cfg?.custom;
+  if (!custom) return [];
+
+  const links = [];
+  const fonts = Array.isArray(custom.fonts) ? custom.fonts : [];
+  const fontFamily = String(custom.font_family ?? '').trim();
+
+  // 远程样式表最先引入：中文网字计划这类方案在 CSS 里自带 @font-face + unicode-range，
+  // 浏览器按需下载字形分片；本地字体和自定义 CSS 排在它后面，可以覆盖它。
+  const remoteCss = Array.isArray(custom.remote_css) ? custom.remote_css : [];
+  for (const item of remoteCss) {
+    const href = String(item ?? '').trim();
+    if (!href) continue;
+    if (!/^https?:\/\//i.test(href)) {
+      warn(`custom.remote_css 只接受 http(s) URL，跳过：${href}`);
+      continue;
+    }
+    links.push(href);
+  }
+
+  if (fonts.length > 0 || fontFamily) {
+    const rules = [];
+    for (const font of fonts) {
+      const family = String(font?.family ?? '').trim();
+      const srcRel = String(font?.src ?? '').trim();
+      if (!family || !srcRel) {
+        warn('custom.fonts 条目缺少 family 或 src，跳过');
+        continue;
+      }
+      const src = path.resolve(ROOT, srcRel);
+      if (!fs.existsSync(src)) {
+        warn(`字体文件不存在：${srcRel}，跳过`);
+        continue;
+      }
+      const ext = path.extname(src).toLowerCase();
+      const weight = font.weight ?? 400;
+      const style = font.style ?? 'normal';
+      const filename = `${sanitizeFilename(family)}-${weight}${ext || '.woff2'}`;
+      await copyIfExists(src, path.join(outDir, 'fonts', filename));
+      rules.push(
+        '@font-face {\n' +
+          `  font-family: "${family}";\n` +
+          `  src: url("${filename}") format("${FONT_FORMATS[ext] ?? 'woff2'}");\n` +
+          `  font-weight: ${weight};\n` +
+          `  font-style: ${style};\n` +
+          '  font-display: swap;\n' +
+          '}'
+      );
+    }
+
+    if (fontFamily) {
+      const familyList = fontFamily
+        .split(',')
+        .map((name) => name.trim())
+        .filter(Boolean)
+        .map((name) => (/["']/.test(name) ? name : `"${name}"`))
+        .join(', ');
+      rules.push(
+        ':root {\n' +
+          `  --font-body: ${familyList}, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;\n` +
+          '}'
+      );
+    }
+
+    if (rules.length > 0) {
+      await writeFileSafe(path.join(outDir, 'fonts', 'fonts.css'), rules.join('\n\n') + '\n');
+      links.push('fonts/fonts.css');
+    }
+  }
+
+  const cssFiles = Array.isArray(custom.css) ? custom.css : [];
+  for (const item of cssFiles) {
+    const srcRel = String(item ?? '').trim();
+    if (!srcRel) continue;
+    const src = path.resolve(ROOT, srcRel);
+    if (!fs.existsSync(src)) {
+      warn(`自定义 CSS 不存在：${srcRel}，跳过`);
+      continue;
+    }
+    const filename = path.basename(src);
+    await copyIfExists(src, path.join(outDir, 'custom', filename));
+    links.push(`custom/${filename}`);
+  }
+
+  return links;
+}
+
 async function emit({ issues, cfg, outDir }) {
   const jsonPath = cfg?.build?.json_path ?? 'memos.json';
   const detailDir = cfg?.build?.detail_dir ?? 'memo';
   const assets = new Map(); // 本地资源：绝对源路径 -> 产物内相对路径（如 avatars/qiyao.png）
+
+  // 自定义字体 / CSS 先落盘，index.html 注入需要它们的链接
+  const customLinks = await emitCustom(outDir, cfg);
+  const customLinkHtml = customLinks
+    .map((href) => `<link rel="stylesheet" href="${escapeXml(href)}">`)
+    .join('\n');
 
   // 列表
   const list = buildList(issues, cfg, assets);
@@ -490,7 +604,7 @@ async function emit({ issues, cfg, outDir }) {
   const copiedHtml = await copyTemplate(
     path.join(SRC_DIR, 'index.html'),
     path.join(outDir, 'index.html'),
-    { '{{SITE_TITLE}}': escapeXml(siteTitle) }
+    { '{{SITE_TITLE}}': escapeXml(siteTitle), '{{CUSTOM_CSS_LINKS}}': customLinkHtml }
   );
   const copiedCss = await copyIfExists(path.join(SRC_DIR, 'style.css'), path.join(outDir, 'style.css'));
   const copiedJs = await copyIfExists(path.join(SRC_DIR, 'app.js'), path.join(outDir, 'app.js'));

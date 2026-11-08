@@ -23,6 +23,11 @@
   --radius: 14px;
   --maxw: 720px;
   --shadow: 0 1px 2px rgba(16, 24, 40, .05), 0 10px 26px -14px rgba(16, 24, 40, .22);
+
+  /* 字体栈抽成变量，方便 config.yaml 的 custom.font_family 覆盖 */
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -58,8 +63,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
-    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  font-family: var(--font-body);
   font-size: 15px;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
@@ -565,7 +569,7 @@ a.chip-label {
   padding: .15em .4em;
   border-radius: 6px;
   background: var(--bg-soft);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-family: var(--font-mono);
   font-size: .9em;
 }
 

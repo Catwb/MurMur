@@ -63,3 +63,31 @@ authors:
   #   name: "某人"
   #   avatar: "https://example.com/someone.png"
 
+# ============================================================
+# 自定义样式与字体（可选）
+# 路径都相对仓库根；文件会被复制进产物，站点保持自包含。
+# ============================================================
+custom:
+  # 远程样式表：直接以 <link> 引入，不复制进产物
+  # 适合中文网字计划 / Google Fonts 这类「CSS + unicode-range 分片」的字体方案，
+  # 浏览器只会下载当前页面用到的字形分片，比整包字体小得多。
+  # 也可以用来引入任何远程样式覆盖。
+  remote_css: []
+  #   - "https://your-font-cdn.example.com/font.css"
+
+  # 自定义 CSS：按顺序在 style.css 之后引入，后引入的优先级更高
+  # 注意：CSS 里的相对 url() 会相对产物 custom/ 目录解析，图片请用绝对 URL 或放进 custom/
+  css: []
+  #   - "assets/custom.css"
+
+  # 自定义字体：构建时复制到产物 fonts/，自动生成 @font-face
+  fonts: []
+  #   - family: "LXGW WenKai"
+  #     src: "assets/fonts/LXGWWenKai-Regular.woff2"
+  #     weight: 400
+  #     style: normal
+
+  # 正文字体族：填了就用它覆盖 --font-body（后面自动补内置回退栈）
+  # 例："LXGW WenKai" 或 "LXGW WenKai, sans-serif"
+  font_family: ""
+
