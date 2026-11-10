@@ -1025,6 +1025,26 @@ dialog.lightbox img {
   text-align: center;
 }
 
+.site-footer a {
+  color: var(--text-soft);
+  text-decoration: none;
+  transition: color .16s ease;
+}
+
+@media (hover: hover) {
+  .site-footer a:hover { color: var(--accent); }
+}
+
+/* 页脚仓库链接：图标和文字基线对齐，别让 svg 把行高顶开 */
+.footer-repo {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  vertical-align: -2px;
+}
+
+.footer-repo .icon { width: 13px; height: 13px; }
+
 .noscript {
   padding: 24px 0;
   color: var(--text-soft);

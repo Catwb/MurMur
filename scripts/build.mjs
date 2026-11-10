@@ -603,6 +603,26 @@ async function buildIconSprite() {
   return `<svg xmlns="http://www.w3.org/2000/svg" class="icon-sprite" aria-hidden="true">${parts.join('')}</svg>`;
 }
 
+/**
+ * 页脚仓库链接：只有 config.yaml 的 site.repo 有值才输出，留空就什么都不加。
+ * 显示名从 URL 里取 owner/repo（github.com/Catwb/MurMur → Catwb/MurMur），
+ * 非 GitHub 地址则原样显示。
+ */
+function repoFooterHtml(cfg) {
+  const url = String(cfg?.site?.repo ?? '').trim();
+  if (!url) return '';
+  const label =
+    url
+      .replace(/^https?:\/\/(www\.)?github\.com\//i, '')
+      .replace(/\/+$/, '') || url;
+  return (
+    ' · ' +
+    `<a class="footer-repo" href="${escapeXml(url)}" target="_blank" rel="noopener noreferrer">` +
+    '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-external-link"></use></svg>' +
+    `<span>${escapeXml(label)}</span></a>`
+  );
+}
+
 async function emit({ issues, cfg, outDir }) {
   const jsonPath = cfg?.build?.json_path ?? 'memos.json';
   const detailDir = cfg?.build?.detail_dir ?? 'memo';
@@ -647,6 +667,7 @@ async function emit({ issues, cfg, outDir }) {
       '{{SITE_TITLE}}': escapeXml(siteTitle),
       '{{CUSTOM_CSS_LINKS}}': customLinkHtml,
       '{{ICON_SPRITE}}': iconSprite,
+      '{{FOOTER_REPO}}': repoFooterHtml(cfg),
     }
   );
   const copiedCss = await copyIfExists(path.join(SRC_DIR, 'style.css'), path.join(outDir, 'style.css'));
