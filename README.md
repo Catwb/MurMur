@@ -65,7 +65,7 @@ GITHUB_TOKEN=xxx GITHUB_REPOSITORY=owner/repo npm run build
 |---|---|
 | `site.title` | 站点标题（注入 `index.html`，并随 `memos.json` 下发） |
 | `site.base_url` | feed 绝对链接的基址，末尾不带斜杠 |
-| `site.repo` | 页脚展示的仓库地址，显示名自动取 `owner/repo`；留空则不显示 |
+| `site.repo` | 页脚的项目仓库地址（必填），显示名自动取 `owner/repo`；留空退回 CI 的 `GITHUB_REPOSITORY` |
 | `memos.include_labels` | 至少命中一个才收录；**空数组 = 不限** |
 | `memos.exclude_labels` | 命中任意一个即排除 |
 | `memos.pinned_labels` | 命中则置顶，且不出现在展示标签里 |

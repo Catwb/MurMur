@@ -578,6 +578,7 @@ const ICONS = [
   'notebook-pen',
   'external-link',
   'refresh-cw',
+  'rss',
 ];
 
 async function buildIconSprite() {
@@ -599,27 +600,62 @@ async function buildIconSprite() {
         `stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${inner}</symbol>`
     );
   }
+  // Lucide 没有品牌图标，GitHub mark 手写一个（实心填充，不是描边）
+  parts.push(
+    '<symbol id="icon-github" viewBox="0 0 24 24" fill="currentColor">' +
+      '<path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 ' +
+      '0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 ' +
+      '1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 ' +
+      '0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 ' +
+      '1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 ' +
+      '0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297 ' +
+      'c0-6.627-5.373-12-12-12"/></symbol>'
+  );
   if (parts.length === 0) return '';
   return `<svg xmlns="http://www.w3.org/2000/svg" class="icon-sprite" aria-hidden="true">${parts.join('')}</svg>`;
 }
 
 /**
- * 页脚仓库链接：只有 config.yaml 的 site.repo 有值才输出，留空就什么都不加。
+ * 页脚项目仓库链接 —— 必填项，用来标明「这是谁的项目」。
+ * 取值顺序：config.yaml 的 site.repo → CI 里的 GITHUB_REPOSITORY → 空（告警）。
  * 显示名从 URL 里取 owner/repo（github.com/Catwb/MurMur → Catwb/MurMur），
  * 非 GitHub 地址则原样显示。
  */
 function repoFooterHtml(cfg) {
-  const url = String(cfg?.site?.repo ?? '').trim();
-  if (!url) return '';
+  const configured = String(cfg?.site?.repo ?? '').trim();
+  const fromCi = process.env.GITHUB_REPOSITORY
+    ? `https://github.com/${process.env.GITHUB_REPOSITORY}`
+    : '';
+  const url = configured || fromCi;
+  if (!url) {
+    warn('site.repo 没配置，页脚的项目仓库链接会缺失（config.yaml 里补上，或设置 GITHUB_REPOSITORY）');
+    return '';
+  }
   const label =
     url
       .replace(/^https?:\/\/(www\.)?github\.com\//i, '')
       .replace(/\/+$/, '') || url;
   return (
     ' · ' +
-    `<a class="footer-repo" href="${escapeXml(url)}" target="_blank" rel="noopener noreferrer">` +
-    '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-external-link"></use></svg>' +
+    `<a class="footer-repo" href="${escapeXml(url)}" target="_blank" rel="noopener noreferrer" ` +
+    `title="项目仓库：${escapeXml(label)}">` +
+    '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-github"></use></svg>' +
     `<span>${escapeXml(label)}</span></a>`
+  );
+}
+
+/**
+ * 页脚 RSS 链接：可选，只在 feed 开着且格式里有 rss 时出现。
+ */
+function feedFooterHtml(cfg) {
+  const feed = cfg?.feed ?? {};
+  const formats = Array.isArray(feed.formats) ? feed.formats : ['rss', 'json'];
+  if (feed.enabled === false || !formats.includes('rss')) return '';
+  return (
+    ' · ' +
+    '<a class="footer-feed" href="feed.xml" title="RSS 订阅">' +
+    '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-rss"></use></svg>' +
+    '<span>RSS</span></a>'
   );
 }
 
@@ -668,6 +704,7 @@ async function emit({ issues, cfg, outDir }) {
       '{{CUSTOM_CSS_LINKS}}': customLinkHtml,
       '{{ICON_SPRITE}}': iconSprite,
       '{{FOOTER_REPO}}': repoFooterHtml(cfg),
+      '{{FOOTER_FEED}}': feedFooterHtml(cfg),
     }
   );
   const copiedCss = await copyIfExists(path.join(SRC_DIR, 'style.css'), path.join(outDir, 'style.css'));

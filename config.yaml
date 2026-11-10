@@ -7,7 +7,8 @@ site:
   title: "Murmur"
   # feed 里拼绝对链接用；末尾不要带斜杠
   base_url: "https://catwb.github.io/MurMur"
-  # 页脚展示的仓库地址；留空则不显示。显示名自动取 URL 里的 owner/repo
+  # 页脚的项目仓库地址（必填）：标明这是谁的项目，显示名自动取 URL 里的 owner/repo。
+  # 留空会退回 CI 里的 GITHUB_REPOSITORY；两者都没有则页脚不显示仓库链接并告警。
   repo: "https://github.com/Catwb/MurMur"
 
 memos:

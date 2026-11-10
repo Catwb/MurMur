@@ -1035,15 +1035,19 @@ dialog.lightbox img {
   .site-footer a:hover { color: var(--accent); }
 }
 
-/* 页脚仓库链接：图标和文字基线对齐，别让 svg 把行高顶开 */
-.footer-repo {
+/* 页脚链接：仓库（必填，标明项目归属）和 RSS（可选）并排，图标与文字基线对齐 */
+.footer-repo,
+.footer-feed {
   display: inline-flex;
   align-items: center;
   gap: 5px;
   vertical-align: -2px;
 }
 
-.footer-repo .icon { width: 13px; height: 13px; }
+.footer-repo .icon,
+.footer-feed .icon { width: 13px; height: 13px; }
+
+.footer-repo { font-weight: 600; }
 
 .noscript {
   padding: 24px 0;
