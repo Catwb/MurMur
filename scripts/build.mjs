@@ -631,6 +631,11 @@ function repoFooterHtml(cfg) {
     warn('site.repo 没配置，页脚的项目仓库链接会缺失（config.yaml 里补上，或设置 GITHUB_REPOSITORY）');
     return '';
   }
+  // 模板用户常见疏漏：仓库是从模板建的，config.yaml 里还留着模板的地址
+  const ciRepo = process.env.GITHUB_REPOSITORY ?? '';
+  if (ciRepo && /catwb\/murmur$/i.test(url) && !/^catwb\/murmur$/i.test(ciRepo)) {
+    warn(`site.repo 还是模板仓库的地址（${url}），但当前仓库是 ${ciRepo}——记得改 config.yaml`);
+  }
   const label =
     url
       .replace(/^https?:\/\/(www\.)?github\.com\//i, '')

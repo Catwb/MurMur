@@ -1,0 +1,93 @@
+name: sync-upstream
+
+# 这个仓库是「模板仓库」。从它 Use this template 出来的仓库是一次性快照，
+# 没有上游 git 历史，所以 fork 那套 `git merge upstream/main` 用不了。
+# 这里改成按「文件边界」同步：
+#   - 引擎文件（scripts/ src/ test/ package*.json .github/workflows/build.yml …）→ 跟随上游
+#   - 你自己的文件（config.yaml / README.md / assets/ / CNAME / 本文件）→ 永不覆盖
+#
+# 每周一 03:00 UTC 自动跑一次，也可以手动 Actions → sync-upstream → Run workflow。
+# 不想自动同步？删掉这个文件就行。
+
+on:
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    # 模板仓库自己不用同步自己
+    if: github.repository != 'Catwb/MurMur'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: 同步上游引擎文件
+        id: sync
+        env:
+          UPSTREAM: Catwb/MurMur
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git remote remove upstream 2>/dev/null || true
+          git remote add upstream "https://github.com/${UPSTREAM}.git"
+          # 显式写到 refs/remotes/upstream/main：只写 `fetch upstream main` 不一定建出这个 ref
+          git fetch --no-tags --depth=1 upstream +refs/heads/main:refs/remotes/upstream/main
+
+          # 属于你的文件：永不同步。本文件也在其中，这样上游改不动它，你随时能关掉同步。
+          USER_OWNED='^(config\.yaml|README\.md|CNAME|assets/|\.github/workflows/sync-upstream\.yml)'
+
+          # grep 没匹配到会返回 1，加 || true 免得 set -e 直接中断
+          git ls-tree -r --name-only upstream/main | grep -Ev "$USER_OWNED" > /tmp/upstream-files.txt || true
+          if [ ! -s /tmp/upstream-files.txt ]; then
+            echo "上游没有可同步的文件"
+            exit 0
+          fi
+
+          echo "===== 上游引擎文件 ====="
+          cat /tmp/upstream-files.txt
+
+          # 1) 覆盖 + 新增：上游有的引擎文件全部取过来（内容以模板为准）
+          xargs -a /tmp/upstream-files.txt -d '\n' -r git checkout upstream/main --
+
+          # 2) 删除：只在引擎目录内删上游已经不存在的文件，
+          #    避免误删你放在仓库根目录的自定义文件
+          for dir in scripts src test; do
+            [ -d "$dir" ] || continue
+            git ls-files "$dir" | sort > /tmp/local.txt
+            grep -E "^${dir}/" /tmp/upstream-files.txt | sort > /tmp/up.txt || true
+            comm -13 /tmp/up.txt /tmp/local.txt | xargs -r git rm -q --
+          done
+
+          if git diff --cached --quiet; then
+            echo "已是最新，无需同步"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "===== 本次同步的改动 ====="
+          git diff --cached --stat
+
+          git commit -q -m "chore: 同步上游模板（$(date -u +%F)）"
+          # 显式指定远端和分支：模板仓库的 main 不一定配了 tracking
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: 同步后重建站点
+        if: steps.sync.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run build.yml --ref "${{ github.ref_name }}"

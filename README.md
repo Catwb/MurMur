@@ -22,19 +22,20 @@
 ## 目录结构
 
 ```
-.github/workflows/build.yml   # 触发 + 构建 + 推 pages 分支
-config.yaml                   # 唯一内容配置
+.github/workflows/build.yml         # 触发 + 构建 + 推 pages 分支
+.github/workflows/sync-upstream.yml # 模板仓库专用：把上游的引擎改动同步下来
+config.yaml                         # 唯一内容配置
 package.json
-scripts/build.mjs             # 数据构建脚本
-scripts/serve.mjs             # 本地预览服务器（零依赖）
-src/                          # 前端源码
+scripts/build.mjs                   # 数据构建脚本
+scripts/serve.mjs                   # 本地预览服务器（零依赖）
+src/                                # 前端源码
 ├── index.html
 ├── style.css
 └── app.js
-assets/                       # 自定义资源（可选，构建时复制进产物）
-└── avatars/                  # 作者头像
-test/                         # 纯函数单测 + 本地 fixture
-dist/                         # 构建产物（gitignore，只存在于 pages 分支）
+assets/                             # 自定义资源（可选，构建时复制进产物）
+└── avatars/                        # 作者头像
+test/                               # 纯函数单测 + 本地 fixture
+dist/                               # 构建产物（gitignore，只存在于 pages 分支）
 ```
 
 ## 本地开发
@@ -58,6 +59,34 @@ GITHUB_TOKEN=xxx GITHUB_REPOSITORY=owner/repo npm run build
 2. `Settings → Pages → Source: Deploy from a branch → pages / (root)`
 3. `config.yaml` 的 `site.base_url` 已指向 `https://catwb.github.io/MurMur`（feed 的绝对链接要用）；fork 或换仓库时改成你自己的地址
 4. 有自定义域名的话，把 `CNAME` 放进 `src/`，构建时会复制到产物里
+
+## 作为模板使用
+
+这个仓库是**模板仓库**：点右上角 **Use this template → Create a new repository**，就能得到一个属于你自己的仓库（不是 fork，历史是干净的一次性快照）。
+
+### 拿到之后要改的
+
+| 文件 | 改什么 |
+|---|---|
+| `config.yaml` | `site.title`、`site.base_url`、`site.repo` 换成你自己的；`authors` 填你的 GitHub 用户名 |
+| `assets/avatars/` | 换成你自己的头像 |
+| `README.md` | 随便写 |
+
+第一次部署照上面「部署」那节走一遍即可。
+
+### 上游更新怎么来
+
+「Use this template」出来的仓库没有上游 git 历史，`git merge upstream/main` 用不了（会变成 unrelated histories，每个文件都冲突）。所以 `.github/workflows/sync-upstream.yml` 按**文件边界**同步：
+
+| 类别 | 文件 | 行为 |
+|---|---|---|
+| 引擎 | `scripts/`、`src/`、`test/`、`package*.json`、`.gitignore`、`.gitattributes`、`.github/workflows/build.yml` | 跟随上游，被覆盖 |
+| 你的 | `config.yaml`、`README.md`、`assets/`、`CNAME`、`sync-upstream.yml` 自己 | 永不覆盖 |
+
+- 每周一 03:00 UTC 自动跑一次；也可以手动 `Actions → sync-upstream → Run workflow`
+- 同步完会自动触发一次 `build`，站点立刻用上新代码
+- **别改引擎文件**——改了下次同步会被覆盖。想长期改，fork 而不是用模板
+- 不想自动同步：删掉 `.github/workflows/sync-upstream.yml` 就行
 
 ## config.yaml 速查
 
